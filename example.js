@@ -18,11 +18,11 @@ export default function() {
         }
     }
 
-    func Run(s interface{}) interface{} {
+    func Run(s ...interface{}) interface{} {
         f := fibonacci()
         var results []int
         var i int64
-        for i = 0; i < s.(int64); i++ {
+        for i = 0; i < s[0].(int64); i++ {
             results = append(results,f())
         }
         return results

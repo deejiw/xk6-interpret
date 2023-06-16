@@ -4,6 +4,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
+	"go.k6.io/k6/js/common"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -20,8 +21,6 @@ type (
 	ModuleInstance struct {
 		// vu provides methods for accessing internal k6 objects for a VU
 		vu modules.VU
-		// comparator is the exported type
-		interpret *Interpret
 	}
 )
 
@@ -41,27 +40,26 @@ func (*RootModule) NewModuleInstance(vu modules.VU) modules.Instance {
 }
 
 type Interpret struct {
-	vu        modules.VU // provides methods for accessing internal k6 objects
-	interpret *interp.Interpreter
+	vu modules.VU
 }
 
-func (r *Interpret) Run(src string, args interface{}) interface{} {
+func (r *Interpret) Run(src string, args ...interface{}) interface{} {
 	i := interp.New(interp.Options{})
 	i.Use(stdlib.Symbols)
 
 	_, err := i.Eval(src)
 	if err != nil {
-		panic(err)
+		common.Throw(r.vu.Runtime(), err)
 	}
 
 	v, err := i.Eval("interpret.Run")
 	if err != nil {
-		panic(err)
+		common.Throw(r.vu.Runtime(), err)
 	}
 
-	run := v.Interface().(func(interface{}) interface{})
+	run := v.Interface().(func(...interface{}) interface{})
 
-	return run(args)
+	return run(args...)
 }
 
 func (mi *ModuleInstance) Exports() modules.Exports {
@@ -74,7 +72,9 @@ func (mi *ModuleInstance) Exports() modules.Exports {
 
 func (mi *ModuleInstance) newInterpret(c goja.ConstructorCall) *goja.Object {
 	rt := mi.vu.Runtime()
-	obj := &Interpret{}
+	obj := &Interpret{
+		vu: mi.vu,
+	}
 
 	return rt.ToValue(obj).ToObject(rt)
 }

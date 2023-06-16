@@ -4,6 +4,10 @@ This is a [k6](https://k6.io) extension using the [xk6](https://github.com/grafa
 
 Insprised and updated from https://github.com/dgzlopes/xk6-interpret.
 
+
+## API
+- [run](docs/README.md#run)
+
 ## Build
 
 To build a `k6` binary with this extension, first ensure you have the prerequisites:
@@ -47,11 +51,11 @@ export default function() {
         }
     }
 
-    func Run(s interface{}) interface{} {
+    func Run(s ...interface{}) interface{} {
         f := fibonacci()
         var results []int
         var i int64
-        for i = 0; i < s.(int64); i++ {
+        for i = 0; i < s[0].(int64); i++ {
             results = append(results,f())
         }
         return results
