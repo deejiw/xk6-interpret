@@ -1,7 +1,7 @@
 package interpret
 
 import (
-	"github.com/dop251/goja"
+	"github.com/grafana/sobek"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"go.k6.io/k6/js/common"
@@ -70,7 +70,7 @@ func (mi *ModuleInstance) Exports() modules.Exports {
 	}
 }
 
-func (mi *ModuleInstance) newInterpret(c goja.ConstructorCall) *goja.Object {
+func (mi *ModuleInstance) newInterpret(c sobek.ConstructorCall) *sobek.Object {
 	rt := mi.vu.Runtime()
 	obj := &Interpret{
 		vu: mi.vu,
